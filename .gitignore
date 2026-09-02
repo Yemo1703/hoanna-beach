@@ -4,6 +4,7 @@ obj/
 *.user
 artifacts/
 .wine-test/
+Output/
 *.log
 *.pdb
 .DS_Store
