@@ -8,10 +8,10 @@ Requiere Windows 10/11 y el SDK de .NET 8:
 
 ```powershell
 dotnet build .\XR18BarControl.sln -c Release
-dotnet publish .\src\XR18BarControl\XR18BarControl.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+dotnet publish .\src\XR18BarControl\XR18BarControl.csproj -c Release
 ```
 
-El ejecutable publicado queda en `src\XR18BarControl\bin\Release\net8.0-windows\win-x64\publish`.
+El ejecutable publicado queda en `src\XR18BarControl\bin\Release\net8.0-windows\publish`. El instalador (`hoanna-beach.iss`) empaqueta ese mismo directorio.
 
 ## Primer uso
 
@@ -58,4 +58,25 @@ Antes de publicar o lanzar una versión se ejecuta el comprobador sin dependenci
 dotnet run --project tests/XR18BarControl.SelfTests -c Release
 ```
 
-Valida serialización OSC, ley de fader, límites backend, whitelist, Main/Aux 1–6, parejas enlazadas y configuración dinámica de zonas.
+Valida serialización OSC, ley de fader, límites backend, whitelist, Main/Aux 1–6, parejas enlazadas, configuración dinámica de zonas y la lógica de comparación de versiones de actualización.
+
+## Publicar una actualización
+
+La aplicación comprueba `version.json` (en la rama `main` de este repositorio, vía `raw.githubusercontent.com`) cada vez que arranca. Si la versión remota es más reciente, ofrece al usuario instalarla.
+
+Para publicar una nueva versión:
+
+1. Sube el número de versión en dos sitios, con el mismo valor:
+   - `src\XR18BarControl\XR18BarControl.csproj` → `<Version>X.Y.Z</Version>`
+   - `hoanna-beach.iss` → `AppVersion=X.Y.Z`
+2. Compila y ejecuta la batería automática (sección anterior); no continúes si falla algo.
+3. Publica y compila el instalador:
+   ```powershell
+   dotnet publish .\src\XR18BarControl\XR18BarControl.csproj -c Release
+   .\compile-setup.ps1
+   ```
+4. Copia el instalador generado a `releases\HoannaBeachSetup-X.Y.Z.exe` (no se sobrescriben versiones anteriores; quedan disponibles para quien no haya actualizado aún).
+5. Actualiza `version.json` en la raíz del repositorio con la nueva versión, la URL del instalador recién copiado y, opcionalmente, notas de la versión.
+6. Haz commit y push de todo (código, `releases\HoannaBeachSetup-X.Y.Z.exe` y `version.json`) a `main`. En cuanto el push llega a GitHub, todas las instalaciones existentes detectarán la actualización en su próximo arranque.
+
+El repositorio debe permanecer público: `version.json` y los instaladores se sirven sin autenticación.

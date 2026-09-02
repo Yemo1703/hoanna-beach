@@ -1,5 +1,6 @@
 using XR18BarControl.Audio;
 using XR18BarControl.Configuration;
+using XR18BarControl.Services;
 using XR18BarControl.XR18;
 
 var tests = new (string Name, Action Run)[]
@@ -15,7 +16,8 @@ var tests = new (string Name, Action Run)[]
     ("Todas las salidas resuelven", () => { foreach(var id in XR18Commands.OutputChoices.Keys){var o=XR18Commands.ResolveOutput(id);True(o.FaderPaths.Count>0&&o.OnPaths.Count>0);} }),
     ("Whitelist solo volumen/mute", () => { Equal(14,XR18Commands.StatePaths.Count);True(XR18Commands.StatePaths.All(x=>x.EndsWith("/mix/fader")||x.EndsWith("/mix/on"))); }),
     ("Parejas enlazadas", () => { foreach(var id in new[]{"bus1_2","bus3_4","bus5_6"}){var o=XR18Commands.ResolveOutput(id);Equal(2,o.FaderPaths.Count);Equal(2,o.OnPaths.Count);} }),
-    ("Configuración dinámica", () => { var c=new AppConfig{Zones=[new(){Name="INTERIOR",Output="mainLR"},new(){Name="TERRAZA",Output="bus1_2"},new(){Name="JARDIN",Output="bus3"}]};Equal(3,c.Zones.Count);Equal("bus3",c.Zones[2].Output); })
+    ("Configuración dinámica", () => { var c=new AppConfig{Zones=[new(){Name="INTERIOR",Output="mainLR"},new(){Name="TERRAZA",Output="bus1_2"},new(){Name="JARDIN",Output="bus3"}]};Equal(3,c.Zones.Count);Equal("bus3",c.Zones[2].Output); }),
+    ("Comparación de versiones de actualización", () => { True(UpdateService.IsNewer(new Version(1,2,0),new Version(1,1,0,0)));True(!UpdateService.IsNewer(new Version(1,1,0),new Version(1,1,0,0)));True(!UpdateService.IsNewer(new Version(1,0,0),new Version(1,1,0,0)));True(UpdateService.IsNewer(new Version(1,1,1),new Version(1,1,0,0))); })
 };
 
 var failures = 0;

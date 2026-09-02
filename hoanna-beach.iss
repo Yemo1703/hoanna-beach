@@ -1,6 +1,6 @@
 [Setup]
 AppName=Hoanna Beach Control
-AppVersion=1.0
+AppVersion=1.1.0
 AppPublisher=Hoanna Beach
 AppPublisherURL=https://github.com/Yemo1703/hoanna-beach
 DefaultDirName={commonpf}\Hoanna Beach Control
