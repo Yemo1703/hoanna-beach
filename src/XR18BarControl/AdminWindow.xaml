@@ -1,0 +1,229 @@
+<Window x:Class="XR18BarControl.AdminWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Ajustes de administrador" Width="1000" Height="1000" WindowStartupLocation="CenterOwner" Background="#0F172A" FontFamily="Segoe UI" Icon="Assets/beer.ico" Loaded="AdminWindow_Loaded">
+ <Window.Resources>
+  <Style x:Key="ModernButton" TargetType="Button">
+   <Setter Property="Foreground" Value="White"/>
+   <Setter Property="FontWeight" Value="SemiBold"/>
+   <Setter Property="FontSize" Value="15"/>
+   <Setter Property="Padding" Value="20,12"/>
+   <Setter Property="BorderThickness" Value="0"/>
+   <Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="Button">
+      <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+       <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      </Border>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
+   <Style.Triggers>
+    <Trigger Property="IsMouseOver" Value="True">
+     <Setter Property="Opacity" Value="0.85"/>
+    </Trigger>
+   </Style.Triggers>
+  </Style>
+  <Style TargetType="TextBox">
+   <Setter Property="FontSize" Value="16"/>
+   <Setter Property="Padding" Value="12"/>
+   <Setter Property="Background" Value="White"/>
+   <Setter Property="Foreground" Value="#111827"/>
+   <Setter Property="BorderBrush" Value="#E5E7EB"/>
+   <Setter Property="BorderThickness" Value="2"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="TextBox">
+      <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+       <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+      </Border>
+      <ControlTemplate.Triggers>
+       <Trigger Property="IsFocused" Value="True">
+        <Setter Property="BorderBrush" Value="#3B82F6"/>
+       </Trigger>
+      </ControlTemplate.Triggers>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
+  </Style>
+  <Style TargetType="PasswordBox">
+   <Setter Property="FontSize" Value="16"/>
+   <Setter Property="Padding" Value="12"/>
+   <Setter Property="Background" Value="White"/>
+   <Setter Property="Foreground" Value="#111827"/>
+   <Setter Property="BorderBrush" Value="#E5E7EB"/>
+   <Setter Property="BorderThickness" Value="2"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="PasswordBox">
+      <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+       <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+      </Border>
+      <ControlTemplate.Triggers>
+       <Trigger Property="IsFocused" Value="True">
+        <Setter Property="BorderBrush" Value="#3B82F6"/>
+       </Trigger>
+      </ControlTemplate.Triggers>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
+  </Style>
+  <Style x:Key="ComboBoxItemStyle" TargetType="ComboBoxItem">
+   <Setter Property="Background" Value="White"/>
+   <Setter Property="Foreground" Value="#111827"/>
+   <Setter Property="Padding" Value="10,8"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="ComboBoxItem">
+      <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+       <ContentPresenter/>
+      </Border>
+      <ControlTemplate.Triggers>
+       <Trigger Property="IsHighlighted" Value="True">
+        <Setter TargetName="Bd" Property="Background" Value="#DBEAFE"/>
+        <Setter Property="Foreground" Value="#111827"/>
+       </Trigger>
+       <Trigger Property="IsSelected" Value="True">
+        <Setter TargetName="Bd" Property="Background" Value="#3B82F6"/>
+        <Setter Property="Foreground" Value="White"/>
+       </Trigger>
+      </ControlTemplate.Triggers>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
+  </Style>
+  <Style TargetType="ComboBox">
+   <Setter Property="FontSize" Value="15"/>
+   <Setter Property="Padding" Value="10,4"/>
+   <Setter Property="Background" Value="White"/>
+   <Setter Property="Foreground" Value="#111827"/>
+   <Setter Property="BorderBrush" Value="#E5E7EB"/>
+   <Setter Property="BorderThickness" Value="2"/>
+   <Setter Property="MaxDropDownHeight" Value="220"/>
+   <Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItemStyle}"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="ComboBox">
+      <Grid>
+       <ToggleButton x:Name="Toggle" Focusable="False" ClickMode="Press" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" IsChecked="{Binding IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}">
+        <ToggleButton.Template>
+         <ControlTemplate TargetType="ToggleButton">
+          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+           <Grid>
+            <Grid.ColumnDefinitions>
+             <ColumnDefinition/>
+             <ColumnDefinition Width="26"/>
+            </Grid.ColumnDefinitions>
+            <Path Grid.Column="1" Data="M0,0 L6,6 L12,0" Stroke="#6B7280" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+           </Grid>
+          </Border>
+         </ControlTemplate>
+        </ToggleButton.Template>
+       </ToggleButton>
+       <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+       <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+        <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="4" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+         <ScrollViewer SnapsToDevicePixels="True">
+          <ItemsPresenter/>
+         </ScrollViewer>
+        </Border>
+       </Popup>
+      </Grid>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
+  </Style>
+  <Style TargetType="CheckBox">
+   <Setter Property="FontSize" Value="16"/>
+   <Setter Property="Foreground" Value="#E5E7EB"/>
+   <Setter Property="Margin" Value="12,8"/>
+  </Style>
+  <Style TargetType="TextBlock"/>
+ </Window.Resources>
+ <Grid Margin="24">
+  <StackPanel x:Name="PinPanel" VerticalAlignment="Center">
+   <TextBlock Text="ACCESO DE ADMINISTRADOR" Foreground="White" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+   <TextBlock Text="Introduce el PIN" Foreground="#D1D5DB" FontSize="18" Margin="0,0,0,16" HorizontalAlignment="Center"/>
+   <PasswordBox x:Name="PinBox" FontSize="28" MaxLength="12" Width="280" HorizontalContentAlignment="Center" Margin="0,0,0,16"/>
+   <TextBlock x:Name="PinError" Foreground="#FCA5A5" HorizontalAlignment="Center" Margin="0,0,0,16" FontSize="16"/>
+   <Button Content="ENTRAR" Width="280" Click="Unlock_Click" Background="#3B82F6" Style="{StaticResource ModernButton}" Padding="20,16"/>
+  </StackPanel>
+  <ScrollViewer x:Name="SettingsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+   <StackPanel Margin="0,0,16,0">
+    <TextBlock Text="AJUSTES TÉCNICOS" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,0,0,16"/>
+    <Grid Margin="0,0,0,14"><Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="14"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <TextBlock Text="Dirección IP XR18" Foreground="#E5E7EB" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+     <TextBox x:Name="IpBox" Grid.Column="1" Margin="0"/>
+     <TextBlock Grid.Row="2" Text="Puerto OSC" Foreground="#E5E7EB" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+     <TextBox x:Name="PortBox" Grid.Row="2" Grid.Column="1" Margin="0"/>
+    </Grid>
+    <TextBlock Text="ZONAS Y SALIDAS" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,16,0,6"/>
+    <TextBlock Text="Cada salida solo puede pertenecer a una zona. La aplicación únicamente controlará su volumen y mute." Foreground="#9CA3AF" Margin="0,0,0,8" FontSize="14"/>
+    <DockPanel Margin="0,0,0,8"><StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Background="Transparent"><Button Content="+ AÑADIR ZONA" Click="AddZone_Click" Background="#2563EB" Style="{StaticResource ModernButton}" Margin="0,0,12,0"/><Button Content="ELIMINAR" Click="RemoveZone_Click" Background="#DC2626" Style="{StaticResource ModernButton}"/></StackPanel></DockPanel>
+    <DataGrid x:Name="ZonesGrid" ItemsSource="{Binding ZoneRows}" SelectedItem="{Binding SelectedZone,Mode=TwoWay}" AutoGenerateColumns="False" CanUserAddRows="False" MaxHeight="260" FontSize="16" RowHeight="50" Background="#1F2937" Foreground="White" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#374151" VerticalGridLinesBrush="#374151">
+     <DataGrid.ColumnHeaderStyle>
+      <Style TargetType="DataGridColumnHeader">
+       <Setter Property="Background" Value="#111827"/>
+       <Setter Property="Foreground" Value="White"/>
+       <Setter Property="FontSize" Value="15"/>
+       <Setter Property="FontWeight" Value="Bold"/>
+       <Setter Property="Padding" Value="12,10"/>
+       <Setter Property="BorderBrush" Value="#374151"/>
+       <Setter Property="BorderThickness" Value="0,0,0,2"/>
+      </Style>
+     </DataGrid.ColumnHeaderStyle>
+     <DataGrid.CellStyle>
+      <Style TargetType="DataGridCell">
+       <Setter Property="Background" Value="#1F2937"/>
+       <Setter Property="Foreground" Value="White"/>
+       <Setter Property="Padding" Value="12,4"/>
+       <Setter Property="BorderThickness" Value="0"/>
+       <Setter Property="Template">
+        <Setter.Value>
+         <ControlTemplate TargetType="DataGridCell">
+          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+           <ContentPresenter/>
+          </Border>
+         </ControlTemplate>
+        </Setter.Value>
+       </Setter>
+       <Style.Triggers>
+        <Trigger Property="IsSelected" Value="True">
+         <Setter Property="Background" Value="#2563EB"/>
+         <Setter Property="Foreground" Value="White"/>
+        </Trigger>
+       </Style.Triggers>
+      </Style>
+     </DataGrid.CellStyle>
+     <DataGrid.Columns>
+      <DataGridTextColumn Header="NOMBRE EN PANTALLA" Binding="{Binding Name,UpdateSourceTrigger=PropertyChanged}" Width="*" IsReadOnly="False"/>
+      <DataGridTemplateColumn Header="SALIDA" Width="300">
+       <DataGridTemplateColumn.CellTemplate>
+        <DataTemplate>
+         <ComboBox ItemsSource="{Binding DataContext.OutputOptions,RelativeSource={RelativeSource AncestorType=Window}}" SelectedValuePath="Id" SelectedValue="{Binding Output,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" FontSize="15" Padding="10,4" Background="White" Foreground="#111827" BorderBrush="#E5E7EB" BorderThickness="1" VirtualizingPanel.IsVirtualizing="False">
+          <ComboBox.ItemTemplate>
+           <DataTemplate>
+            <TextBlock Text="{Binding Label}" Foreground="#111827" Background="White" Padding="6,2"/>
+           </DataTemplate>
+          </ComboBox.ItemTemplate>
+         </ComboBox>
+        </DataTemplate>
+       </DataGridTemplateColumn.CellTemplate>
+      </DataGridTemplateColumn>
+     </DataGrid.Columns>
+    </DataGrid>
+    <WrapPanel Margin="0,14,0,14">
+     <CheckBox x:Name="AutoConnectBox" Content="Conectar automáticamente" FontSize="16" Margin="0,8,24,8"/>
+     <CheckBox x:Name="FullscreenBox" Content="Pantalla completa" FontSize="16" Margin="0,8,24,8"/>
+     <CheckBox x:Name="WindowsBox" Content="Iniciar con Windows" FontSize="16" Margin="0,8,24,8"/>
+    </WrapPanel>
+    <TextBlock Text="Nuevo PIN (vacío para conservarlo)" Foreground="#E5E7EB" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8"/>
+    <PasswordBox x:Name="NewPinBox" Margin="0,0,0,14"/>
+    <TextBlock x:Name="StatusText" Foreground="#FECACA" Margin="0,0,0,14" TextWrapping="Wrap" FontSize="15"/>
+    <WrapPanel HorizontalAlignment="Center" Margin="0,14,0,0">
+     <Button x:Name="DiscoverButton" Content="BUSCAR XR18" Click="Discover_Click" Background="#6366F1" Style="{StaticResource ModernButton}" Margin="0,0,12,0"/>
+     <Button Content="PROBAR CONEXIÓN" Click="Test_Click" Background="#8B5CF6" Style="{StaticResource ModernButton}" Margin="0,0,12,0"/>
+     <Button Content="GUARDAR" Click="Save_Click" Background="#10B981" Style="{StaticResource ModernButton}"/>
+    </WrapPanel>
+   </StackPanel>
+  </ScrollViewer>
+ </Grid>
+</Window>

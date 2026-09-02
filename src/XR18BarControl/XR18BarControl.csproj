@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <LangVersion>latest</LangVersion>
+    <BaseOutputPath>$(MSBuildProjectDirectory)\bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</BaseIntermediateOutputPath>
+    <ApplicationIcon>Assets\beer.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\beer.ico" />
+  </ItemGroup>
+</Project>
