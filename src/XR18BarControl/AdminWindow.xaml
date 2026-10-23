@@ -210,6 +210,19 @@
       </DataGridTemplateColumn>
      </DataGrid.Columns>
     </DataGrid>
+    <TextBlock Text="ENTRADAS" Foreground="White" FontSize="22" FontWeight="Bold" Margin="0,20,0,6"/>
+    <TextBlock Text="Añade únicamente las entradas que se podrán controlar. El micrófono está configurado inicialmente en el canal 5." Foreground="#9CA3AF" Margin="0,0,0,8" FontSize="14"/>
+    <DockPanel Margin="0,0,0,8"><StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Background="Transparent"><Button Content="+ AÑADIR ENTRADA" Click="AddInput_Click" Background="#2563EB" Style="{StaticResource ModernButton}" Margin="0,0,12,0"/><Button Content="ELIMINAR" Click="RemoveInput_Click" Background="#DC2626" Style="{StaticResource ModernButton}"/></StackPanel></DockPanel>
+    <DataGrid x:Name="InputsGrid" ItemsSource="{Binding InputRows}" AutoGenerateColumns="False" CanUserAddRows="False" MaxHeight="220" FontSize="16" RowHeight="50" Background="#1F2937" Foreground="White" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#374151" VerticalGridLinesBrush="#374151">
+     <DataGrid.ColumnHeaderStyle><Style TargetType="DataGridColumnHeader"><Setter Property="Background" Value="#111827"/><Setter Property="Foreground" Value="White"/><Setter Property="FontSize" Value="15"/><Setter Property="FontWeight" Value="Bold"/><Setter Property="Padding" Value="12,10"/></Style></DataGrid.ColumnHeaderStyle>
+     <DataGrid.CellStyle><Style TargetType="DataGridCell"><Setter Property="Background" Value="#1F2937"/><Setter Property="Foreground" Value="White"/><Setter Property="Padding" Value="12,4"/><Setter Property="BorderThickness" Value="0"/></Style></DataGrid.CellStyle>
+     <DataGrid.Columns>
+      <DataGridTextColumn Header="NOMBRE EN PANTALLA" Binding="{Binding Name,UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+      <DataGridTemplateColumn Header="CANAL" Width="300"><DataGridTemplateColumn.CellTemplate><DataTemplate>
+       <ComboBox ItemsSource="{Binding DataContext.InputOptions,RelativeSource={RelativeSource AncestorType=Window}}" SelectedValuePath="Channel" SelectedValue="{Binding Channel,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VirtualizingPanel.IsVirtualizing="False"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}" Foreground="#111827" Background="White" Padding="6,2"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+      </DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+     </DataGrid.Columns>
+    </DataGrid>
     <WrapPanel Margin="0,14,0,14">
      <CheckBox x:Name="AutoConnectBox" Content="Conectar automáticamente" FontSize="16" Margin="0,8,24,8"/>
      <CheckBox x:Name="FullscreenBox" Content="Pantalla completa" FontSize="16" Margin="0,8,24,8"/>

@@ -58,7 +58,7 @@ Antes de publicar o lanzar una versión se ejecuta el comprobador sin dependenci
 dotnet run --project tests/XR18BarControl.SelfTests -c Release
 ```
 
-Valida serialización OSC, ley de fader, límites backend, whitelist, Main/Aux 1–6, parejas enlazadas, configuración dinámica de zonas y la lógica de comparación de versiones de actualización.
+Valida serialización OSC, leyes de fader de salidas y entradas, límites backend, whitelist, Main/Aux 1–6, entradas 1–16, parejas enlazadas, configuración dinámica y la lógica de comparación de versiones de actualización.
 
 ## Publicar una actualización
 

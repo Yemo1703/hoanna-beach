@@ -18,6 +18,7 @@ public sealed class MainViewModel : ObservableObject
     private ConnectionState _connection;
 
     public ObservableCollection<ZoneViewModel> Zones { get; } = [];
+    public ObservableCollection<InputViewModel> Inputs { get; } = [];
     public ICommand AllZonesCommand { get; }
     public ICommand AdminCommand { get; }
     public bool ControlsEnabled => _connection == ConnectionState.Connected;
@@ -27,7 +28,7 @@ public sealed class MainViewModel : ObservableObject
     public MainViewModel(XR18OscClient client, ConfigService configs, AppConfig config)
     {
         _client = client; _configs = configs; _config = config;
-        LoadZones();
+        LoadControls();
         _client.ConnectionChanged += OnConnection;
         _client.StateReceived += OnState;
         AllZonesCommand = new AsyncCommand(() => SetAllZonesAsync());
@@ -36,11 +37,13 @@ public sealed class MainViewModel : ObservableObject
 
     public Task ConnectAsync(CancellationToken ct) => _client.RunAsync(ct);
 
-    private void LoadZones()
+    private void LoadControls()
     {
         Zones.Clear();
         foreach (var zone in _config.Zones) Zones.Add(new ZoneViewModel(this, zone, XR18Commands.ResolveOutput(zone.Output)));
-        Raise(nameof(Zones));
+        Inputs.Clear();
+        foreach (var input in _config.Inputs) Inputs.Add(new InputViewModel(this, input, XR18Commands.ResolveInput(input.Channel)));
+        Raise(nameof(Zones)); Raise(nameof(Inputs));
     }
 
     private void OpenAdmin()
@@ -49,7 +52,7 @@ public sealed class MainViewModel : ObservableObject
         var window = new AdminWindow(_configs, _config, _client) { Owner = Application.Current.MainWindow };
         if (window.ShowDialog() == true)
         {
-            _config = window.Config; LoadZones(); AppLog.Audit("Pantalla de administración cerrada después de guardar");
+            _config = window.Config; LoadControls(); AppLog.Audit("Pantalla de administración cerrada después de guardar");
             if (ControlsEnabled) _ = _client.QueryAllAsync(CancellationToken.None);
         }
         else AppLog.Audit("Pantalla de administración cerrada sin guardar");
@@ -83,6 +86,14 @@ public sealed class MainViewModel : ObservableObject
         catch (Exception ex) { AppLog.Error($"Fallo al enviar volumen de {zone.Name}", ex); }
     }
 
+    internal async Task SetInputVolumeAsync(InputViewModel input, double value)
+    {
+        AppLog.Audit($"Cambio de entrada solicitado | entrada={input.Name} canal={input.Channel} porcentaje={value:F1} dB={input.DbText}");
+        if (!ControlsEnabled) return;
+        try { await _client.SetInputVolumeAsync(input.Mapping, value, CancellationToken.None); AppLog.Audit($"Nivel de entrada enviado | entrada={input.Name} porcentaje={value:F1}"); }
+        catch (Exception ex) { AppLog.Error($"Fallo al enviar nivel de {input.Name}", ex); }
+    }
+
     private void OnConnection(ConnectionState state) => Application.Current.Dispatcher.Invoke(() =>
     {
         _connection = state; Raise(nameof(ConnectionText)); Raise(nameof(ConnectionBrush)); Raise(nameof(ControlsEnabled));
@@ -98,7 +109,23 @@ public sealed class MainViewModel : ObservableObject
             if (zone.Output.OnPaths.Contains(message.Address))
                 zone.IsOn = zone.Output.OnPaths.All(path => _onStates.TryGetValue(path, out var enabled) && enabled);
         }
+        foreach (var input in Inputs)
+        {
+            if (input.Mapping.FaderPaths.Contains(message.Address) && message.Value is float f) input.SetFromMixer(VolumeMapper.InputOscToPercent(f));
+            if (input.Mapping.OnPaths.Contains(message.Address)) input.IsOn = input.Mapping.OnPaths.All(path => _onStates.TryGetValue(path, out var enabled) && enabled);
+        }
     });
+}
+
+public sealed class InputViewModel : ObservableObject
+{
+    private readonly MainViewModel _owner; private double _volume; private bool _isOn; private bool _syncing;
+    public string Id { get; } public string Name { get; } public int Channel { get; } public OutputMapping Mapping { get; }
+    public double Volume { get => _volume; set { if (Set(ref _volume, value)) { Raise(nameof(DbText)); if (!_syncing) _ = _owner.SetInputVolumeAsync(this, value); } } }
+    public bool IsOn { get => _isOn; set => Set(ref _isOn, value); }
+    public string DbText { get { var db=VolumeMapper.InputPercentToDb(Volume); return double.IsNegativeInfinity(db)?"−∞ dB":$"{db:+0.0;-0.0;0.0} dB"; } }
+    public InputViewModel(MainViewModel owner, InputConfig config, OutputMapping mapping) { _owner=owner; Id=config.Id; Name=config.Name.ToUpperInvariant(); Channel=config.Channel; Mapping=mapping; }
+    public void SetFromMixer(double value) { _syncing=true; try { Volume=value; } finally { _syncing=false; } }
 }
 
 public sealed class ZoneViewModel : ObservableObject

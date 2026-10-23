@@ -1,12 +1,12 @@
 [Setup]
 AppName=Hoanna Beach Control
-AppVersion=1.1.0
+AppVersion=1.2.0
 AppPublisher=Hoanna Beach
 AppPublisherURL=https://github.com/Yemo1703/hoanna-beach
 DefaultDirName={commonpf}\Hoanna Beach Control
 DefaultGroupName=Hoanna Beach Control
-OutputDir=.\Output
-OutputBaseFilename=HoannaBeachSetup
+OutputDir=.\releases
+OutputBaseFilename=HoannaBeachSetup-1.2.0
 SetupIconFile=src\XR18BarControl\Assets\beer.ico
 Compression=lzma2
 SolidCompression=yes
@@ -23,7 +23,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "src\XR18BarControl\bin\Release\net8.0-windows\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "artifacts\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "src\XR18BarControl\Assets\beer.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]

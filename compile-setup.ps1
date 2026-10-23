@@ -1,4 +1,4 @@
-$issPath = "C:\Users\gburgosh\Downloads\hoanna-beach-main\hoanna-beach-main\hoanna-beach.iss"
+$issPath = Join-Path $PSScriptRoot "hoanna-beach.iss"
 $isccPaths = @(
     "C:\Users\gburgosh\AppData\Local\Programs\Inno Setup 6\iscc.exe",
     "C:\Program Files (x86)\Inno Setup 6\iscc.exe",

@@ -13,6 +13,7 @@ var states = new Dictionary<string, object>
     [XR18Commands.Bus2On] = 1
 };
 for (var bus = 3; bus <= 6; bus++) { states[$"/bus/{bus}/mix/fader"] = .65f; states[$"/bus/{bus}/mix/on"] = 0; }
+for (var channel = 1; channel <= 16; channel++) { states[$"/ch/{channel:00}/mix/fader"] = channel == 5 ? .75f : .5f; states[$"/ch/{channel:00}/mix/on"] = channel == 5 ? 1 : 0; }
 var clients = new Dictionary<string, (IPEndPoint Endpoint, DateTime Expires)>();
 using var shutdown = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) => { e.Cancel = true; shutdown.Cancel(); };

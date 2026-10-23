@@ -16,7 +16,9 @@ public partial class AdminWindow : Window
     private readonly ConfigService _service; private readonly XR18OscClient _client;
     public AppConfig Config { get; private set; }
     public ObservableCollection<ZoneEditorRow> ZoneRows { get; } = [];
+    public ObservableCollection<InputEditorRow> InputRows { get; } = [];
     public IReadOnlyList<OutputOption> OutputOptions { get; } = XR18Commands.OutputChoices.Select(x => new OutputOption(x.Key, x.Value)).ToArray();
+    public IReadOnlyList<InputOption> InputOptions { get; } = XR18Commands.InputChoices.Select(x => new InputOption(x.Key, x.Value)).ToArray();
     public ZoneEditorRow? SelectedZone { get; set; }
 
     public AdminWindow(ConfigService service, AppConfig config, XR18OscClient client)
@@ -30,6 +32,7 @@ public partial class AdminWindow : Window
         AppLog.Audit("Acceso de administración autorizado"); PinPanel.Visibility = Visibility.Collapsed; SettingsPanel.Visibility = Visibility.Visible;
         IpBox.Text = Config.Xr18.Ip; PortBox.Text = Config.Xr18.Port.ToString(); AutoConnectBox.IsChecked = Config.AutoConnect; FullscreenBox.IsChecked = Config.StartFullscreen; WindowsBox.IsChecked = Config.StartWithWindows;
         ZoneRows.Clear(); foreach (var zone in Config.Zones) ZoneRows.Add(new(zone.Id, zone.Name, zone.Output));
+        InputRows.Clear(); foreach (var input in Config.Inputs) InputRows.Add(new(input.Id, input.Name, input.Channel));
     }
     private void AddZone_Click(object sender, RoutedEventArgs e)
     {
@@ -42,21 +45,34 @@ public partial class AdminWindow : Window
         if (ZoneRows.Count <= 1) { StatusText.Text = "Debe existir al menos una zona."; return; }
         ZoneRows.Remove(row); AppLog.Audit($"Zona eliminada del editor: {row.Name}");
     }
+    private void AddInput_Click(object sender, RoutedEventArgs e)
+    {
+        var used = InputRows.Select(x => x.Channel).ToHashSet(); var channel = InputOptions.FirstOrDefault(x => !used.Contains(x.Channel))?.Channel ?? 1;
+        var row = new InputEditorRow(Guid.NewGuid().ToString("N"), $"ENTRADA {channel}", channel); InputRows.Add(row); InputsGrid.SelectedItem = row; InputsGrid.ScrollIntoView(row); AppLog.Audit("Clic en AÑADIR ENTRADA");
+    }
+    private void RemoveInput_Click(object sender, RoutedEventArgs e)
+    {
+        if (InputsGrid.SelectedItem is not InputEditorRow row) { StatusText.Text = "Selecciona una entrada para eliminar."; return; }
+        InputRows.Remove(row); AppLog.Audit($"Entrada eliminada del editor: {row.Name}");
+    }
     private bool Validate(out IPAddress ip, out int port)
     {
-        ip = IPAddress.None; port = 0; ZonesGrid.CommitEdit(); ZonesGrid.CommitEdit(System.Windows.Controls.DataGridEditingUnit.Row, true);
+        ip = IPAddress.None; port = 0; ZonesGrid.CommitEdit(); ZonesGrid.CommitEdit(System.Windows.Controls.DataGridEditingUnit.Row, true); InputsGrid.CommitEdit(); InputsGrid.CommitEdit(System.Windows.Controls.DataGridEditingUnit.Row, true);
         if (!IPAddress.TryParse(IpBox.Text, out ip!) || !int.TryParse(PortBox.Text, out port) || port is < 1 or > 65535) { StatusText.Text = "Revisa la IP y el puerto."; return false; }
         if (ZoneRows.Count == 0 || ZoneRows.Any(x => string.IsNullOrWhiteSpace(x.Name) || !XR18Commands.OutputChoices.ContainsKey(x.Output))) { StatusText.Text = "Revisa nombres y salidas."; return false; }
         if (ZoneRows.GroupBy(x => x.Output).Any(x => x.Count() > 1)) { StatusText.Text = "Una salida no puede estar asignada a dos zonas."; return false; }
+        if (InputRows.Any(x => string.IsNullOrWhiteSpace(x.Name) || !XR18Commands.InputChoices.ContainsKey(x.Channel))) { StatusText.Text = "Revisa nombres y canales de entrada."; return false; }
+        if (InputRows.GroupBy(x => x.Channel).Any(x => x.Count() > 1)) { StatusText.Text = "Un canal no puede estar asignado a dos controles de entrada."; return false; }
         return true;
     }
     private async void Save_Click(object sender, RoutedEventArgs e)
     {
         AppLog.Audit("Clic en GUARDAR ajustes"); if (!Validate(out var ip, out var port)) return;
         Config.Xr18.Ip = ip.ToString(); Config.Xr18.Port = port; Config.Zones = ZoneRows.Select(x => new ZoneConfig { Id = x.Id, Name = x.Name.Trim().ToUpperInvariant(), Output = x.Output }).ToList();
+        Config.Inputs = InputRows.Select(x => new InputConfig { Id = x.Id, Name = x.Name.Trim().ToUpperInvariant(), Channel = x.Channel }).ToList();
         Config.AutoConnect = AutoConnectBox.IsChecked == true; Config.StartFullscreen = FullscreenBox.IsChecked == true; Config.StartWithWindows = WindowsBox.IsChecked == true;
         var pinChanged = NewPinBox.Password.Length > 0; if (pinChanged) { if (NewPinBox.Password.Length < 4) { StatusText.Text = "El PIN debe tener al menos 4 caracteres."; return; } Config.AdminPinHash = AdminPinService.Hash(NewPinBox.Password); }
-        AppLog.Audit($"Configuración aceptada | ip={Config.Xr18.Ip} puerto={port} zonas={string.Join(';', Config.Zones.Select(x => $"{x.Name}:{x.Output}"))} pinCambiado={pinChanged}");
+        AppLog.Audit($"Configuración aceptada | ip={Config.Xr18.Ip} puerto={port} zonas={string.Join(';', Config.Zones.Select(x => $"{x.Name}:{x.Output}"))} entradas={string.Join(';', Config.Inputs.Select(x => $"{x.Name}:ch{x.Channel}"))} pinCambiado={pinChanged}");
         await _service.SaveAsync(Config); StartupService.Apply(Config.StartWithWindows); _client.Reconfigure(Config.Xr18.Ip, Config.Xr18.Port); DialogResult = true;
     }
     private async void Test_Click(object sender, RoutedEventArgs e)
@@ -76,4 +92,7 @@ public partial class AdminWindow : Window
 
 public sealed class ZoneEditorRow(string id, string name, string output)
 { public string Id { get; set; } = id; public string Name { get; set; } = name; public string Output { get; set; } = output; }
+public sealed class InputEditorRow(string id, string name, int channel)
+{ public string Id { get; set; } = id; public string Name { get; set; } = name; public int Channel { get; set; } = channel; }
 public sealed record OutputOption(string Id, string Label);
+public sealed record InputOption(int Channel, string Label);

@@ -11,12 +11,15 @@ var tests = new (string Name, Action Run)[]
     ("OSC xinfo multi-string", () => { var d=OscCodec.Encode(new("/xinfo",new object[]{"V0.04","XR18-SIM","XR18","1.20"}));Equal(4,OscCodec.DecodeStringArguments(d).Count); }),
     ("Mapeo 0% a -infinito", () => True(double.IsNegativeInfinity(VolumeMapper.PercentToDb(0)))),
     ("100% = 0dB", () => Near(0,VolumeMapper.PercentToDb(100),1e-9)),
+    ("Entrada usa recorrido hasta +10dB", () => { Near(0,VolumeMapper.InputPercentToDb(75),.001);Near(10,VolumeMapper.InputPercentToDb(100),.001);Near(75,VolumeMapper.InputOscToPercent(.75f),.001); }),
     ("Mapeo perceptual monótono", () => { var last=double.NegativeInfinity;for(var p=0;p<=100;p++){var next=VolumeMapper.PercentToDb(p);True(next>=last);last=next;} }),
     ("Ley de fader ida/vuelta", () => { True(double.IsNegativeInfinity(VolumeMapper.OscToDb(VolumeMapper.DbToOsc(-90))));foreach(var db in new[]{-70d,-60,-45,-30,-20,-10,0,10})Near(db,VolumeMapper.OscToDb(VolumeMapper.DbToOsc(db)),.001); }),
     ("Todas las salidas resuelven", () => { foreach(var id in XR18Commands.OutputChoices.Keys){var o=XR18Commands.ResolveOutput(id);True(o.FaderPaths.Count>0&&o.OnPaths.Count>0);} }),
-    ("Whitelist solo volumen/mute", () => { Equal(14,XR18Commands.StatePaths.Count);True(XR18Commands.StatePaths.All(x=>x.EndsWith("/mix/fader")||x.EndsWith("/mix/on"))); }),
+    ("Whitelist solo volumen/mute", () => { Equal(46,XR18Commands.StatePaths.Count);True(XR18Commands.StatePaths.All(x=>x.EndsWith("/mix/fader")||x.EndsWith("/mix/on"))); }),
+    ("Entradas 1-16 resuelven", () => { foreach(var channel in Enumerable.Range(1,16)){var input=XR18Commands.ResolveInput(channel);Equal($"/ch/{channel:00}/mix/fader",input.FaderPaths.Single());Equal($"/ch/{channel:00}/mix/on",input.OnPaths.Single());} }),
     ("Parejas enlazadas", () => { foreach(var id in new[]{"bus1_2","bus3_4","bus5_6"}){var o=XR18Commands.ResolveOutput(id);Equal(2,o.FaderPaths.Count);Equal(2,o.OnPaths.Count);} }),
     ("Configuración dinámica", () => { var c=new AppConfig{Zones=[new(){Name="INTERIOR",Output="mainLR"},new(){Name="TERRAZA",Output="bus1_2"},new(){Name="JARDIN",Output="bus3"}]};Equal(3,c.Zones.Count);Equal("bus3",c.Zones[2].Output); }),
+    ("Micrófono por defecto en entrada 5", () => { var c=new AppConfig();Equal(1,c.Inputs.Count);Equal(5,c.Inputs[0].Channel);Equal("MICRO",c.Inputs[0].Name); }),
     ("Comparación de versiones de actualización", () => { True(UpdateService.IsNewer(new Version(1,2,0),new Version(1,1,0,0)));True(!UpdateService.IsNewer(new Version(1,1,0),new Version(1,1,0,0)));True(!UpdateService.IsNewer(new Version(1,0,0),new Version(1,1,0,0)));True(UpdateService.IsNewer(new Version(1,1,1),new Version(1,1,0,0))); })
 };
 
