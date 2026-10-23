@@ -24,9 +24,13 @@
   </Style>
  </Window.Resources>
  <StackPanel Margin="32">
-  <TextBlock Text="ACTUALIZACIÓN DISPONIBLE" Foreground="White" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,16"/>
+  <TextBlock x:Name="TitleText" Text="ACTUALIZACIÓN DISPONIBLE" Foreground="White" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,16"/>
   <TextBlock x:Name="MessageText" Foreground="#D1D5DB" FontSize="16" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,24"/>
-  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+  <StackPanel x:Name="ProgressPanel" Visibility="Collapsed" Margin="0,0,0,20">
+   <ProgressBar x:Name="DownloadProgress" Height="18" Minimum="0" Maximum="100"/>
+   <TextBlock x:Name="ProgressText" Foreground="#93C5FD" FontSize="15" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+  </StackPanel>
+  <StackPanel x:Name="ButtonsPanel" Orientation="Horizontal" HorizontalAlignment="Center">
    <Button Content="AHORA NO" Click="Later_Click" Background="#374151" Style="{StaticResource ModernButton}" Margin="0,0,12,0"/>
    <Button Content="ACTUALIZAR" Click="Update_Click" Background="#3B82F6" Style="{StaticResource ModernButton}"/>
   </StackPanel>

@@ -1,12 +1,14 @@
+#define MyAppVersion "1.2.1"
+
 [Setup]
 AppName=Hoanna Beach Control
-AppVersion=1.2.0
+AppVersion={#MyAppVersion}
 AppPublisher=Hoanna Beach
 AppPublisherURL=https://github.com/Yemo1703/hoanna-beach
 DefaultDirName={commonpf}\Hoanna Beach Control
 DefaultGroupName=Hoanna Beach Control
 OutputDir=.\releases
-OutputBaseFilename=HoannaBeachSetup-1.2.0
+OutputBaseFilename=HoannaBeachSetup-{#MyAppVersion}
 SetupIconFile=src\XR18BarControl\Assets\beer.ico
 Compression=lzma2
 SolidCompression=yes
@@ -32,7 +34,7 @@ Name: "{group}\{cm:UninstallProgram,Hoanna Beach Control}"; Filename: "{uninstal
 Name: "{commondesktop}\Hoanna Beach Control"; Filename: "{app}\XR18BarControl.exe"; IconFilename: "{app}\beer.ico"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\XR18BarControl.exe"; Description: "{cm:LaunchProgram,Hoanna Beach Control}"; WorkingDir: "{app}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\XR18BarControl.exe"; Parameters: "--updated={#MyAppVersion}"; Description: "{cm:LaunchProgram,Hoanna Beach Control}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"

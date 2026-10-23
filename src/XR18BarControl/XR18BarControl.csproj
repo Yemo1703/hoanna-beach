@@ -10,7 +10,7 @@
     <BaseOutputPath>$(MSBuildProjectDirectory)\bin\</BaseOutputPath>
     <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</BaseIntermediateOutputPath>
     <ApplicationIcon>Assets\beer.ico</ApplicationIcon>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <Resource Include="Assets\beer.ico" />

@@ -21,16 +21,26 @@ public sealed class UpdateService
   catch(Exception ex){AppLog.Error("No se pudo comprobar si hay actualizaciones",ex);return null;}
  }
 
- public async Task<bool> DownloadAndInstallAsync(string installerUrl,CancellationToken ct)
+ public async Task<bool> DownloadAndInstallAsync(string installerUrl,IProgress<UpdateProgress>? progress,CancellationToken ct)
  {
   try
   {
+   progress?.Report(new(null,"Conectando con el servidor…"));
    using var http=new HttpClient{Timeout=TimeSpan.FromMinutes(5)};
-   var bytes=await http.GetByteArrayAsync(installerUrl,ct);
+   using var response=await http.GetAsync(installerUrl,HttpCompletionOption.ResponseHeadersRead,ct);
+   response.EnsureSuccessStatusCode();
+   var total=response.Content.Headers.ContentLength;
    var path=Path.Combine(Path.GetTempPath(),"HoannaBeachSetup.exe");
-   await File.WriteAllBytesAsync(path,bytes,ct);
-   AppLog.Audit($"Instalador de actualización descargado | ruta={path} bytes={bytes.Length}");
-   Process.Start(new ProcessStartInfo(path,"/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"){UseShellExecute=true});
+   await using(var source=await response.Content.ReadAsStreamAsync(ct))
+   await using(var target=new FileStream(path,FileMode.Create,FileAccess.Write,FileShare.None,81920,true))
+   {
+    var buffer=new byte[81920];long received=0;int read;
+    while((read=await source.ReadAsync(buffer,ct))>0){await target.WriteAsync(buffer.AsMemory(0,read),ct);received+=read;double? percent=total>0?received*100d/total:null;progress?.Report(new(percent,percent is null?$"Descargados {received/1048576d:F1} MB":$"Descargando… {percent:F0} %"));}
+   }
+   var bytes=new FileInfo(path).Length;
+   AppLog.Audit($"Instalador de actualización descargado | ruta={path} bytes={bytes}");
+   progress?.Report(new(100,"Descarga completada. Preparando instalación…"));
+   Process.Start(new ProcessStartInfo(path,"/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS"){UseShellExecute=true});
    AppLog.Audit("Instalador de actualización lanzado");
    return true;
   }
@@ -43,3 +53,4 @@ public sealed class UpdateService
 
 public sealed class UpdateManifest{public string Version{get;set;}="";public string InstallerUrl{get;set;}="";public string? Notes{get;set;}}
 public sealed record UpdateInfo(Version Version,string InstallerUrl,string? Notes);
+public sealed record UpdateProgress(double? Percent,string Message);

@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
-  "installerUrl": "https://raw.githubusercontent.com/Yemo1703/hoanna-beach/main/releases/HoannaBeachSetup-1.2.0.exe",
-  "notes": "Control configurable de entradas 1–16, micrófono predeterminado en el canal 5 y reactivación automática al subir desde 0 %."
+  "version": "1.2.1",
+  "installerUrl": "https://raw.githubusercontent.com/Yemo1703/hoanna-beach/main/releases/HoannaBeachSetup-1.2.1.exe",
+  "notes": "Interfaz adaptable y actualización visible con descarga, instalación, reapertura automática y confirmación final."
 }
